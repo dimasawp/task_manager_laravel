@@ -12,19 +12,40 @@ class TaskController extends Controller {
     }
 
     public function store(Request $request) {
-        return $request->user()->tasks()->create($request->all());
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'nullable|exists:categories,id'
+        ]);
+        return $request->user()->tasks()->create($validated);
     }
 
-    public function show(Task $task) {
+    public function show(Task $task, Request $request) {
+        if ($task->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         return $task;
     }
 
     public function update(Request $request, Task $task) {
-        $task->update($request->all());
+        if ($task->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'string',
+            'category' => 'nullable|exists:categories,id'
+        ]);
+        $task->update($validated);
         return $task;
     }
 
-    public function destroy(Task $task) {
+    public function destroy(Task $task, Request $request) {
+        if ($task->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
         $task->delete();
         return response()->noContent();
     }
