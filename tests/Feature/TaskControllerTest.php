@@ -83,8 +83,9 @@ class TaskControllerTest extends TestCase {
     #[Test]
     public function creating_task_requires_title() {
         $user = User::factory()->create();
+        $payload = [];
 
-        $response = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', []);
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', $payload);
         $response->assertStatus(422);
     }
 
@@ -113,10 +114,11 @@ class TaskControllerTest extends TestCase {
     public function user_can_update_thier_task() {
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
-
-        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", [
+        $payload = [
             'title' => 'Updated title',
-        ]);
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", $payload);
         $response->assertOk()->assertJsonFragment(['title' => 'Updated title']);
     }
 
@@ -125,10 +127,11 @@ class TaskControllerTest extends TestCase {
         $user = User::factory()->create();
         $other = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $other->id]);
-
-        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", [
+        $payload = [
             'title' => 'Hack Update',
-        ]);
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", $payload);
         $response->assertForbidden();
     }
 
@@ -136,10 +139,11 @@ class TaskControllerTest extends TestCase {
     public function updating_task_requires_valid_data() {
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
-
-        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", [
+        $payload = [
             'title' => '',
-        ]);
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", $payload);
         $response->assertStatus(422);
     }
 
@@ -148,6 +152,7 @@ class TaskControllerTest extends TestCase {
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id, 'priority' => null]);
         $payload = [
+            'title' => 'Test',
             'priority' => 'medium',
         ];
 

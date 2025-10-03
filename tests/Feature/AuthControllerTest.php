@@ -13,12 +13,12 @@ class AuthControllerTest extends TestCase {
 
     #[Test]
     public function user_can_register_and_get_token() {
-        $response = $this->postJson('/api/register', [
+        $payload = [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
-        ]);
-
+        ];
+        $response = $this->postJson('/api/register', $payload);
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'access_token',
@@ -32,15 +32,13 @@ class AuthControllerTest extends TestCase {
 
     #[Test]
     public function user_can_login_with_correct_credentials() {
-        $user = User::factory()->create([
-            'password' => Hash::make('password123'),
-        ]);
-
-        $response = $this->postJson('/api/login', [
+        $user = User::factory()->create(['password' => Hash::make('password123')]);
+        $payload = [
             'email' => $user->email,
             'password' => 'password123',
-        ]);
+        ];
 
+        $response = $this->postJson('/api/login', $payload);
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'access_token',
@@ -50,16 +48,14 @@ class AuthControllerTest extends TestCase {
 
     #[Test]
     public function user_cannot_login_with_invalid_credentials() {
-        $user = User::factory()->create([
-            'password' => Hash::make('password123'),
-        ]);
-
-        $response = $this->postJson('/api/login', [
+        $user = User::factory()->create(['password' => Hash::make('password123')]);
+        $payload = [
             'email' => $user->email,
             'password' => 'wrong-password',
-        ]);
+        ];
 
-        $response->assertStatus(200) // karena kamu return json biasa
+        $response = $this->postJson('/api/login', $payload);
+        $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Invalid login',
             ]);
@@ -68,12 +64,9 @@ class AuthControllerTest extends TestCase {
     #[Test]
     public function authenticated_user_can_get_their_info() {
         $user = User::factory()->create();
-
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $response = $this->withHeader('Authorization', "Bearer $token")
-            ->getJson('/api/me');
-
+        $response = $this->withHeader('Authorization', "Bearer $token")->getJson('/api/me');
         $response->assertStatus(200)
             ->assertJson([
                 'id' => $user->id,
@@ -86,9 +79,7 @@ class AuthControllerTest extends TestCase {
         $user = User::factory()->create();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson('/api/logout');
-
+        $response = $this->withHeader('Authorization', "Bearer $token")->postJson('/api/logout');
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Logged out successfully.',
