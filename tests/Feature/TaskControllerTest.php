@@ -37,6 +37,7 @@ class TaskControllerTest extends TestCase {
         $payload = [
             'title' => 'My New Task',
             'description' => 'New Task',
+            // Tambahan setelah update add priority feature: nullable bisa insert/bisa insert tanpa priority
         ];
 
         $response = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', $payload);
@@ -46,6 +47,37 @@ class TaskControllerTest extends TestCase {
             'title' => 'My New Task',
             'user_id' => $user->id,
         ]);
+    }
+
+    #[Test]
+    public function user_can_set_task_priority_when_creating_task() {
+        $user = User::factory()->create();
+        $payload = [
+            'title' => 'Priority Task',
+            'description' => 'Priority Task',
+            'priority' => 'high',
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', $payload);
+        $response->assertCreated()->assertJsonFragment(['priority' => 'high']);
+
+        $this->assertDatabaseHas('tasks', [
+            'title' => 'Priority Task',
+            'user_id' => $user->id,
+            'priority' => 'high',
+        ]);
+    }
+
+    #[Test]
+    public function invalid_priority_fails_validation_on_store() {
+        $user = User::factory()->create();
+        $payload = [
+            'title' => 'Priority Task',
+            'priority' => 'extreme',
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/tasks', $payload);
+        $response->assertStatus(422);
     }
 
     #[Test]
@@ -108,6 +140,30 @@ class TaskControllerTest extends TestCase {
         $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", [
             'title' => '',
         ]);
+        $response->assertStatus(422);
+    }
+
+    #[Test]
+    public function user_can_update_task_priority() {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['user_id' => $user->id, 'priority' => null]);
+        $payload = [
+            'priority' => 'medium',
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", $payload);
+        $response->assertOk()->assertJsonFragment(['id' => $task->id, 'priority' => 'medium']);
+    }
+
+    #[Test]
+    public function updating_task_with_invalid_priority_fails() {
+        $user = User::factory()->create();
+        $task = Task::factory()->create(['user_id' => $user->id, 'priority' => null]);
+        $payload = [
+            'priority' => 'extreme',
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->putJson("/api/tasks/{$task->id}", $payload);
         $response->assertStatus(422);
     }
 
