@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('is_done')->default(false);
+            $table->enum('priority', ['low', 'medium', 'high'])->nullable();
             $table->timestamps();
         });
     }

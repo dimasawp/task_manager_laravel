@@ -15,7 +15,8 @@ class TaskController extends Controller {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'nullable|exists:categories,id'
+            'category' => 'nullable|exists:categories,id',
+            'priority' => 'nullable|in:low,medium,high'
         ]);
         return $request->user()->tasks()->create($validated);
     }
@@ -36,7 +37,8 @@ class TaskController extends Controller {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'string',
-            'category' => 'nullable|exists:categories,id'
+            'category' => 'nullable|exists:categories,id',
+            'priority' => 'nullable|in:low,medium,high'
         ]);
         $task->update($validated);
         return $task;
