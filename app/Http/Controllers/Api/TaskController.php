@@ -9,16 +9,19 @@ use Illuminate\Http\Request;
 class TaskController extends Controller {
     public function index(Request $request) {
         $tasks = $request->user()->tasks()
-            ->with('category')
+            ->with(['category', 'project', 'subtasks'])
             ->get();
 
-        return response()->json($tasks);
+        return response()->json([
+            'message' => 'List of user tasks',
+            'data' => $tasks
+        ]);
     }
 
     public function store(Request $request) {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'priority' => 'nullable|in:low,medium,high',
             'status' => 'nullable|in:pending,in_progress,completed,cancelled',
@@ -31,14 +34,17 @@ class TaskController extends Controller {
         if (!empty($validated['parent_id'])) {
             $parent = Task::find($validated['parent_id']);
             if ($parent->parent_id !== null) {
-                return response()->json(['message' => ' 1 Level Maximum Subtask']);
+                return response()->json(['message' => ' 1 Level Maximum Subtask'], 422);
             }
         }
 
         $validated['user_id'] = $request->user()->id;
 
         $task = Task::create($validated);
-        return response()->json($task, 201);
+        return response()->json([
+            'message' => 'Task created successfully',
+            'data' => $task
+        ], 201);
     }
 
     public function show(Task $task, Request $request) {
@@ -46,7 +52,10 @@ class TaskController extends Controller {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        return response()->json($task->load('category', 'project', 'subtasks', 'parent'));
+        return response()->json([
+            'message' => 'Task detail retrieved successfully',
+            'data' => $task->load(['category', 'project', 'subtasks', 'parent'])
+        ]);
     }
 
     public function update(Task $task, Request $request) {
@@ -56,7 +65,7 @@ class TaskController extends Controller {
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'priority' => 'nullable|in:low,medium,high',
             'status' => 'nullable|in:pending,in_progress,completed,cancelled',
@@ -74,7 +83,10 @@ class TaskController extends Controller {
         }
 
         $task->update($validated);
-        return response()->json($task);
+        return response()->json([
+            'message' => 'Task updated successfully',
+            'data' => $task,
+        ]);
     }
 
     public function destroy(Task $task, Request $request) {

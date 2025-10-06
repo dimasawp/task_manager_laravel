@@ -12,7 +12,10 @@ class ProjectController extends Controller {
             ->with('tasks')
             ->get();
 
-        return response()->json($projects);
+        return response()->json([
+            'message' => 'List of projects',
+            'data' => $projects
+        ]);
     }
 
     public function store(Request $request) {
@@ -26,7 +29,10 @@ class ProjectController extends Controller {
         $validated['created_by'] = $request->user()->id;
 
         $project = Project::create($validated);
-        return response()->json($project, 201);
+        return response()->json([
+            'message' => 'Project created successfully',
+            'data' => $project
+        ], 201);
     }
 
     public function show(Project $project, Request $request) {
@@ -34,7 +40,10 @@ class ProjectController extends Controller {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        return response()->json($project->load('tasks'));
+        return response()->json([
+            'message' => 'Task detail retrieved successfully',
+            'data' => $project->load('tasks'),
+        ]);
     }
 
     public function update(Project $project, Request $request) {
@@ -50,7 +59,10 @@ class ProjectController extends Controller {
         ]);
 
         $project->update($validated);
-        return response()->json($project);
+        return response()->json([
+            'message' => 'Project updated successfully',
+            'data' => $project,
+        ]);
     }
 
     public function destroy(Project $project, Request $request) {
