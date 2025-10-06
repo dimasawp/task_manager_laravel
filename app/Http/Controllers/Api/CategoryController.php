@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller {
     public function index(Request $request) {
-        $categories = $request->user()->categories()->latest()->get();
+        $categories = $request->user()->categories()
+            ->latest()
+            ->get();
 
         return response()->json([
             'message' => 'List of categories',
@@ -22,7 +24,6 @@ class CategoryController extends Controller {
         ]);
 
         $category = $request->user()->categories()->create($validated);
-
         return response()->json([
             'message' => 'Category created successfully',
             'data' => $category
@@ -39,7 +40,6 @@ class CategoryController extends Controller {
         ]);
 
         $category->update($validated);
-
         return response()->json([
             'message' => 'Category updated successfully',
             'data' => $category
@@ -50,8 +50,8 @@ class CategoryController extends Controller {
         if ($category->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
-        $category->delete();
 
+        $category->delete();
         return response()->noContent();
     }
 }
