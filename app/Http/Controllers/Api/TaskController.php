@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -21,25 +23,16 @@ class TaskController extends Controller {
         ]);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:pending,in_progress,completed,cancelled',
-            'project_id' => 'nullable|exists:projects,id',
-            'parent_id' => 'nullable|exists:tasks,id',
-            'deadline' => 'nullable|date',
-        ]);
+    public function store(StoreTaskRequest $request) {
+        $validated = $request->validated();
 
         // Limitation for subtask 1 level (cannot add subtask to task if have parent_id)
-        if (!empty($validated['parent_id'])) {
-            $parent = Task::find($validated['parent_id']);
-            if ($parent->parent_id !== null) {
-                return response()->json(['message' => ' 1 Level Maximum Subtask'], 422);
-            }
-        }
+        // if (!empty($validated['parent_id'])) {
+        //     $parent = Task::find($validated['parent_id']);
+        //     if ($parent->parent_id !== null) {
+        //         return response()->json(['message' => ' 1 Level Maximum Subtask'], 422);
+        //     }
+        // }
 
         $validated['user_id'] = $request->user()->id;
 
@@ -59,27 +52,17 @@ class TaskController extends Controller {
         ]);
     }
 
-    public function update(Task $task, Request $request) {
+    public function update(Task $task, UpdateTaskRequest $request) {
         $this->authorize('update', $task);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'status' => 'nullable|in:pending,in_progress,completed,cancelled',
-            'project_id' => 'nullable|exists:projects,id',
-            'parent_id' => 'nullable|exists:tasks,id',
-            'deadline' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         // Limitation for subtask 1 level (cannot add subtask to task if have parent_id)
-        if (!empty($validated['parent_id'])) {
-            $parent = Task::find($validated['parent_id']);
-            if ($parent->parent_id !== null) {
-                return response()->json(['message' => ' 1 Level Maximum Subtask']);
-            }
-        }
+        // if (!empty($validated['parent_id'])) {
+        //     $parent = Task::find($validated['parent_id']);
+        //     if ($parent->parent_id !== null) {
+        //         return response()->json(['message' => ' 1 Level Maximum Subtask']);
+        //     }
+        // }
 
         $task->update($validated);
         return response()->json([

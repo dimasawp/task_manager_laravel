@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -21,14 +23,9 @@ class ProjectController extends Controller {
         ]);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'deadline' => 'nullable|date',
-            'status' => 'nullable|in:pending,in_progress,completed,cancelled',
-        ]);
-
+    // public function store(Request $request) {
+    public function store(StoreProjectRequest $request) {
+        $validated = $request->validated();
         $validated['created_by'] = $request->user()->id;
 
         $project = Project::create($validated);
@@ -47,15 +44,10 @@ class ProjectController extends Controller {
         ]);
     }
 
-    public function update(Project $project, Request $request) {
+    // public function update(Project $project, Request $request) {
+    public function update(Project $project, UpdateProjectRequest $request) {
         $this->authorize('update', $project);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'deadline' => 'nullable|date',
-            'status' => 'nullable|in:pending,in_progress,completed,cancelled',
-        ]);
+        $validated = $request->validated();
 
         $project->update($validated);
         return response()->json([

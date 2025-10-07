@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -21,10 +23,8 @@ class CategoryController extends Controller {
         ]);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:30'
-        ]);
+    public function store(StoreCategoryRequest $request) {
+        $validated = $request->validated();
 
         $category = $request->user()->categories()->create($validated);
         return response()->json([
@@ -42,12 +42,9 @@ class CategoryController extends Controller {
         ]);
     }
 
-    public function update(Category $category, Request $request) {
+    public function update(Category $category, UpdateCategoryRequest $request) {
         $this->authorize('update', $category);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:30'
-        ]);
+        $validated = $request->validated();
 
         $category->update($validated);
         return response()->json([
