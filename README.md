@@ -1,61 +1,194 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📋 Task Manager API (Laravel 12)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🚀 Deskripsi
 
-## About Laravel
+Proyek ini adalah sebuah API Task Manager yang dibangun menggunakan Laravel 12.
+API ini memungkinkan pengguna untuk melakukan operasi CRUD (Create, Read, Update, Delete) pada Projects, Tasks, dan Categories, lengkap dengan otentikasi pengguna, notifikasi, dan best practices Laravel modern.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   🔑 Autentikasi Pengguna: Register, Login, Logout menggunakan Laravel Sanctum.
+-   🗂️ Pengelolaan Projects:
+    -   Membuat, melihat, memperbarui, dan menghapus project.
+    -   Menampilkan project beserta daftar task-nya.
+-   📝 Pengelolaan Tasks:
+    -   CRUD task dengan kategori, project, prioritas, status, dan deadline.
+    -   Subtask 1 level maksimum.
+-   🏷️ Kategori (Category CRUD):
+    -   Membuat, memperbarui, melihat, dan menghapus kategori.
+-   📬 Notifikasi & Email:
+    -   Notifikasi dikirim jika project/task memiliki deadline hari ini.
+    -   Memanfaatkan Event, Listener, Job, Queue, Notification, dan Mail.
+-   🔒 Akses Terproteksi: Semua operasi memerlukan otorisasi melalui Bearer Token.
+-   ✅ Testing: Unit & Feature tests untuk memastikan fungsionalitas berjalan.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠 Tech Stack
 
-## Learning Laravel
+-   Backend: Laravel 12 (PHP 8.2+)
+-   Authentication: Laravel Sanctum
+-   Database: PostgreSQL / MySQL / SQLite
+-   Queue: Laravel Queue & Jobs
+-   Testing: PHPUnit
+-   Email: Laravel Mail
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## ⚡ Quickstart
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 1️⃣ Requirements
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   PHP 8.2+
+-   Composer
+-   PostgreSQL / MySQL / SQLite
+-   Docker (opsional, untuk environment konsisten)
 
-## Laravel Sponsors
+### 2️⃣ Instalasi
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+# Kloning repositori
+git clone https://github.com/dimasawp/task_manager_laravel.git
+cd task_manager_laravel
 
-### Premium Partners
+# Instal dependensi
+composer install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Salin file environment
+cp .env.example .env
 
-## Contributing
+# Generate application key
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3️⃣ Database & Running
 
-## Code of Conduct
+```bash
+# Konfigurasi database di .env lalu jalankan:
+php artisan migrate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Jalankan server Laravel lokal
+php artisan serve
+```
 
-## Security Vulnerabilities
+### 4️⃣ Docker (Optional)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Build dan jalankan container
+docker-compose up -d --build
 
-## License
+# Masuk ke container PHP
+docker-compose exec app bash
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Di dalam container:
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
+
+## 📡 API Endpoints
+
+| Method | Endpoint             | Description            |
+| ------ | -------------------- | ---------------------- |
+| POST   | /api/register        | Register user          |
+| POST   | /api/login           | Login user & get token |
+| POST   | /api/logout          | Logout user            |
+| GET    | /api/categories      | List all categories    |
+| POST   | /api/categories      | Create category        |
+| GET    | /api/categories/{id} | Get category detail    |
+| PUT    | /api/categories/{id} | Update category        |
+| DELETE | /api/categories/{id} | Delete category        |
+| GET    | /api/projects        | List all projects      |
+| POST   | /api/projects        | Create project         |
+| GET    | /api/projects/{id}   | Get project detail     |
+| PUT    | /api/projects/{id}   | Update project         |
+| DELETE | /api/projects/{id}   | Delete project         |
+| GET    | /api/tasks           | List all tasks         |
+| POST   | /api/tasks           | Create task            |
+| GET    | /api/tasks/{id}      | Get task detail        |
+| PUT    | /api/tasks/{id}      | Update task            |
+| DELETE | /api/tasks/{id}      | Delete task            |
+
+### 💬 Response Format
+
+```JSON
+{
+    "message": "Tasks retrieved successfully",
+    "data": [
+        // ... array of task objects
+    ]
+}
+```
+
+### 🧪 Testing
+
+```bash
+php artisan test
+```
+
+## Struktur Folder
+
+Berikut adalah tree dari struktur folder utama proyek (disederhanakan):
+
+```
+🗂️ task_manager_laravel/
+├── .github/
+│   └── workflows/ci.yml
+├── app/
+│   ├── Console/
+│   ├── Events/DeadlineCheckEvent.php
+│   ├── Exceptions/
+│   ├── Http/
+│   │   ├── Controllers/Api/
+│   │   │   ├── CategoryController.php
+│   │   │   ├── ProjectController.php
+│   │   │   └── TaskController.php
+│   │   ├── Middleware/
+│   │   └── Requests/
+│   │       ├── StoreCategoryRequest.php
+│   │       ├── UpdateCategoryRequest.php
+│   │       ├── StoreProjectRequest.php
+│   │       ├── UpdateProjectRequest.php
+│   │       ├── StoreTaskRequest.php
+│   │       └── UpdateTaskRequest.php
+│   ├── Jobs/ProcessDeadlineNotificationJob.php
+│   ├── Listeners/SendDeadlineNotificationListener.php
+│   ├── Models/
+│   │   ├── Category.php
+│   │   ├── Project.php
+│   │   └── Task.php
+│   ├── Notifications/DeadlineTodayNotification.php
+│   ├── Policies/
+│   │   ├── CategoryPolicy.php
+│   │   ├── ProjectPolicy.php
+│   │   └── TaskPolicy.php
+│   ├── Providers/AuthServiceProvider.php
+│   └── Rules/OneLevelSubtask.php
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   └── seeders/
+├── routes/api.php
+└── tests/
+    ├── Feature/
+    └── Unit/
+```
+
+## 🏆 Best Practices
+
+-   Controller tipis, logika bisnis di Service / Job /Listener.
+-   Form Request khusus untuk validasi input.
+-   Menggunakan Policies untuk otorisasi.
+-   Event → Listener → Job → Notification untuk notifikasi deadline.
+-   Testing lengkap dengan Unit & Feature Tests.
+-   Response API konsisten dalam format JSON.
+
+## ⚠️ Troubleshooting
+
+-   401 Unauthorized
+    -   Pastikan login terlebih dahulu untuk mendapatkan token.
+    -   Sertakan header: Authorization: Bearer <token> saat request.
+-   Queue Job Tidak Jalan
+    -   Jalankan: php artisan queue:work atau gunakan supervisor untuk production.
+-   Migrasi Gagal
+    -   Pastikan database sudah dibuat dan .env dikonfigurasi dengan benar.
+
+## 📝 Lisensi
+
+MIT License © 2025
