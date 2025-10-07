@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -19,11 +20,10 @@ class ProjectController extends Controller {
 
         return response()->json([
             'message' => 'List of projects',
-            'data' => $projects
+            'data' => ProjectResource::collection($projects),
         ]);
     }
 
-    // public function store(Request $request) {
     public function store(StoreProjectRequest $request) {
         $validated = $request->validated();
         $validated['created_by'] = $request->user()->id;
@@ -31,7 +31,7 @@ class ProjectController extends Controller {
         $project = Project::create($validated);
         return response()->json([
             'message' => 'Project created successfully',
-            'data' => $project
+            'data' => new ProjectResource($project)
         ], 201);
     }
 
@@ -40,11 +40,10 @@ class ProjectController extends Controller {
 
         return response()->json([
             'message' => 'Task detail retrieved successfully',
-            'data' => $project->load('tasks'),
+            'data' => new ProjectResource($project->load('tasks')),
         ]);
     }
 
-    // public function update(Project $project, Request $request) {
     public function update(Project $project, UpdateProjectRequest $request) {
         $this->authorize('update', $project);
         $validated = $request->validated();
@@ -52,7 +51,7 @@ class ProjectController extends Controller {
         $project->update($validated);
         return response()->json([
             'message' => 'Project updated successfully',
-            'data' => $project,
+            'data' => new ProjectResource($project),
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -19,27 +20,18 @@ class TaskController extends Controller {
 
         return response()->json([
             'message' => 'List of user tasks',
-            'data' => $tasks
+            'data' => TaskResource::collection($tasks),
         ]);
     }
 
     public function store(StoreTaskRequest $request) {
         $validated = $request->validated();
-
-        // Limitation for subtask 1 level (cannot add subtask to task if have parent_id)
-        // if (!empty($validated['parent_id'])) {
-        //     $parent = Task::find($validated['parent_id']);
-        //     if ($parent->parent_id !== null) {
-        //         return response()->json(['message' => ' 1 Level Maximum Subtask'], 422);
-        //     }
-        // }
-
         $validated['user_id'] = $request->user()->id;
 
         $task = Task::create($validated);
         return response()->json([
             'message' => 'Task created successfully',
-            'data' => $task
+            'data' => new TaskResource($task)
         ], 201);
     }
 
@@ -48,7 +40,7 @@ class TaskController extends Controller {
 
         return response()->json([
             'message' => 'Task detail retrieved successfully',
-            'data' => $task->load(['category', 'project', 'subtasks', 'parent'])
+            'data' => new TaskResource($task->load(['category', 'project', 'subtasks', 'parent'])),
         ]);
     }
 
@@ -56,18 +48,10 @@ class TaskController extends Controller {
         $this->authorize('update', $task);
         $validated = $request->validated();
 
-        // Limitation for subtask 1 level (cannot add subtask to task if have parent_id)
-        // if (!empty($validated['parent_id'])) {
-        //     $parent = Task::find($validated['parent_id']);
-        //     if ($parent->parent_id !== null) {
-        //         return response()->json(['message' => ' 1 Level Maximum Subtask']);
-        //     }
-        // }
-
         $task->update($validated);
         return response()->json([
             'message' => 'Task updated successfully',
-            'data' => $task,
+            'data' => new TaskResource($task),
         ]);
     }
 

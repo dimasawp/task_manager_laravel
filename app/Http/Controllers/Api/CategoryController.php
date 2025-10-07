@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class CategoryController extends Controller {
 
         return response()->json([
             'message' => 'List of categories',
-            'data' => $categories
+            'data' => CategoryResource::collection($categories),
         ]);
     }
 
@@ -29,7 +30,7 @@ class CategoryController extends Controller {
         $category = $request->user()->categories()->create($validated);
         return response()->json([
             'message' => 'Category created successfully',
-            'data' => $category
+            'data' => new CategoryResource($category),
         ], 201);
     }
 
@@ -38,7 +39,7 @@ class CategoryController extends Controller {
 
         return response()->json([
             'message' => 'Category Detail',
-            'data' => $category,
+            'data' => new CategoryResource($category),
         ]);
     }
 
@@ -49,7 +50,7 @@ class CategoryController extends Controller {
         $category->update($validated);
         return response()->json([
             'message' => 'Category updated successfully',
-            'data' => $category
+            'data' => new CategoryResource($category),
         ]);
     }
 
