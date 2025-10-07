@@ -83,6 +83,23 @@ class CategoryControllerTest extends TestCase {
         ]);
     }
 
+    // SHOW
+    #[Test]
+    public function user_can_view_their_own_category_detail() {
+        $category = Category::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->actingAs($this->user)->getJson("/api/categories/{$category->id}");
+        $response->assertOk()->assertJsonFragment(['id' => $category->id]);
+    }
+
+    #[Test]
+    public function user_cannot_view_other_users_category_detail() {
+        $category = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $response = $this->actingAs($this->user)->getJson("/api/categories/{$category->id}");
+        $response->assertStatus(403);
+    }
+
     // UPDATE
     #[Test]
     public function user_can_update_their_own_category() {

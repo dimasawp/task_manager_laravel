@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller {
+    use AuthorizesRequests;
+
     public function index(Request $request) {
         $tasks = $request->user()->tasks()
             ->with(['category', 'project', 'subtasks'])
@@ -48,9 +51,7 @@ class TaskController extends Controller {
     }
 
     public function show(Task $task, Request $request) {
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('view', $task);
 
         return response()->json([
             'message' => 'Task detail retrieved successfully',
@@ -59,9 +60,7 @@ class TaskController extends Controller {
     }
 
     public function update(Task $task, Request $request) {
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('update', $task);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -90,9 +89,7 @@ class TaskController extends Controller {
     }
 
     public function destroy(Task $task, Request $request) {
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('delete', $task);
 
         $task->delete();
         return response()->noContent();

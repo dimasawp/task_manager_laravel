@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller {
+    use AuthorizesRequests;
+
     public function index(Request $request) {
         $projects = $request->user()->projects()
             ->with('tasks')
@@ -36,9 +39,7 @@ class ProjectController extends Controller {
     }
 
     public function show(Project $project, Request $request) {
-        if ($project->created_by !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('view', $project);
 
         return response()->json([
             'message' => 'Task detail retrieved successfully',
@@ -47,9 +48,7 @@ class ProjectController extends Controller {
     }
 
     public function update(Project $project, Request $request) {
-        if ($project->created_by !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('update', $project);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -66,9 +65,7 @@ class ProjectController extends Controller {
     }
 
     public function destroy(Project $project, Request $request) {
-        if ($project->created_by !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('delete', $project);
 
         $project->delete();
         return response()->noContent();

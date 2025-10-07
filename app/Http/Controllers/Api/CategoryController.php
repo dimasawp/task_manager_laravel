@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller {
+    use AuthorizesRequests;
+
     public function index(Request $request) {
         $categories = $request->user()->categories()
             ->latest()
@@ -30,10 +33,17 @@ class CategoryController extends Controller {
         ], 201);
     }
 
-    public function update(Request $request, Category $category) {
-        if ($category->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+    public function show(Category $category, Request $request) {
+        $this->authorize('view', $category);
+
+        return response()->json([
+            'message' => 'Category Detail',
+            'data' => $category,
+        ]);
+    }
+
+    public function update(Category $category, Request $request) {
+        $this->authorize('update', $category);
 
         $validated = $request->validate([
             'name' => 'required|string|max:30'
@@ -46,10 +56,8 @@ class CategoryController extends Controller {
         ]);
     }
 
-    public function destroy(Request $request, Category $category) {
-        if ($category->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+    public function destroy(Category $category, Request $request) {
+        $this->authorize('delete', $category);
 
         $category->delete();
         return response()->noContent();
