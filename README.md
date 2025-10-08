@@ -44,8 +44,8 @@ API ini memungkinkan pengguna untuk melakukan operasi CRUD (Create, Read, Update
 
 ```bash
 # Kloning repositori
-git clone https://github.com/dimasawp/task_manager_laravel.git
-cd task_manager_laravel
+git clone https://github.com/dimasawp/task-manager-app.git
+cd task-manager-app
 
 # Instal dependensi
 composer install
@@ -127,7 +127,7 @@ php artisan test
 Berikut adalah tree dari struktur folder utama proyek (disederhanakan):
 
 ```
-🗂️ task_manager_laravel/
+🗂️ task-manager-app/
 ├── .github/
 │   └── workflows/ci.yml
 ├── app/
