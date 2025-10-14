@@ -9,36 +9,39 @@ import "./App.css";
 
 function App() {
     return (
-        <Router>
-            <Routes>
+        // <Router>
+        <Routes>
+            {/* public routes */}
+            <Route
+                path="/login"
+                element={
+                    <AuthLayout>
+                        <Login />
+                    </AuthLayout>
+                }
+            />
+            <Route
+                path="/register"
+                element={
+                    <AuthLayout>
+                        <Register />
+                    </AuthLayout>
+                }
+            />
+
+            {/* protected routes */}
+            <Route element={<PrivateRoute />}>
                 <Route
-                    path="/login"
+                    path="/tasks"
                     element={
-                        <AuthLayout>
-                            <Login />
-                        </AuthLayout>
+                        <DashboardLayout>
+                            <Dashboard />
+                        </DashboardLayout>
                     }
                 />
-                <Route
-                    path="/register"
-                    element={
-                        <AuthLayout>
-                            <Register />
-                        </AuthLayout>
-                    }
-                />
-                <Route
-                    path="/"
-                    element={
-                        <PrivateRoute>
-                            <DashboardLayout>
-                                <Dashboard />
-                            </DashboardLayout>
-                        </PrivateRoute>
-                    }
-                />
-            </Routes>
-        </Router>
+            </Route>
+        </Routes>
+        // </Router>
     );
 }
 

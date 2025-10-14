@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+    db:
+        image: postgres:12
+        container_name: pg_db
+        restart: always
+        environment:
+            POSTGRES_DB: task_manager
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: secret123
+        ports:
+            - "5432:5432"
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        networks:
+            - tasknet
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: task_manager_backend
+        volumes:
+            - ./backend:/var/www
+            - ./backend/.env:/var/www/.env
+        ports:
+            - "8000:8000"
+        depends_on:
+            db:
+                condition: service_healthy
+        command: sh -c "./wait-for-it.sh db:5432 -- php artisan serve --host=0.0.0.0 --port=8000"
+        environment:
+            DB_CONNECTION: pgsql
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_DATABASE: task_manager
+            DB_USERNAME: postgres
+            DB_PASSWORD: secret123
+        networks:
+            - tasknet
+
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: task_manager_frontend
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        ports:
+            - "5173:5173"
+        environment:
+            VITE_API_URL: http://localhost:8000/api
+        command: sh -c "npm install && npm run dev -- --host"
+        depends_on:
+            - backend
+        networks:
+            - tasknet
+
+networks:
+    tasknet:
+        driver: bridge
+
+volumes:
+    pg_data:

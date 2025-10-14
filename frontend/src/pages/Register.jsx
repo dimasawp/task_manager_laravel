@@ -1,25 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registerApi } from "../services/auth";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import Button from "../components/Button";
 import FormInput from "../components/FormInput";
 
-export default function Login() {
-    const [username, setUsername] = useState("");
+export default function Register() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setconfirmPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
-    const navigate = useNavigate();
+    const { register } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             setError("Password dan konfirmasi password tidak sesuai");
+            return;
         }
 
         try {
-            await registerApi(username, password);
-            navigate("/login");
+            await register({ name, email, password });
         } catch (err) {
             setError("Gagal mendaftar, coba lagi.");
         }
@@ -29,12 +30,19 @@ export default function Login() {
         <div>
             <h1 className="text-2xl font-semibold mb-6 text-center">Register</h1>
             {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="mb-4">
                 <FormInput
-                    label="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Masukkan username"
+                    label="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Masukkan nama"
+                />
+                <FormInput
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Masukkan email"
                 />
                 <FormInput
                     label="Password"
@@ -54,6 +62,12 @@ export default function Login() {
                     Daftar
                 </Button>
             </form>
+            <p className="text-center">
+                Have an account?{" "}
+                <Link to="/login" className="text-blue-500 underline underline-offset-1">
+                    Login
+                </Link>
+            </p>
         </div>
     );
 }
